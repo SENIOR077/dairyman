@@ -1,0 +1,28 @@
+<header>
+  <div class="container">
+    <nav>
+      <div class="logo">Dairyman</div>
+      <ul class="nav-links">
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#benefits">Benefits</a></li>
+        <li><a href="/#testimonials">Testimonials</a></li>
+        <li><a href="/#stats">Results</a></li>
+      </ul>
+      <div class="auth-buttons">
+        <a href="/login" class="btn btn-secondary">Login</a>
+        <a href="/register" class="btn">Register</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<% if (locals.message){ %>
+<div class="alert">
+  <p><%= locals.message %></p>
+  <button class="close-alert">X</button>
+</div>
+<script>
+  document.querySelector(".close-alert").addEventListener("click", function () {
+    this.parentElement.style.display = "none";
+  });
+</script>
+<% } %>

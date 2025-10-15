@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milk Production Records</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <%- include("_dashheader.ejs") %>
+
+  <main>
+    <%- include("_dashnav.ejs") %>
+    <section class="main-content">
+      <div class="section-header">
+        <h1>Milk Production Records</h1>
+        <a href="/add-milk-production" class="btn btn-primary">Add Milk Production</a>
+      </div>
+
+      <h2>Recent Records</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tag</th>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Quantity (L)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% productions.forEach(prod => { %>
+            <tr>
+              <td><%= prod.animal_tag %></td>
+              <td><%= prod.animal_name %></td>
+              <td><%= new Date(prod.production_date).toLocaleDateString() %></td>
+              <% const hour = Number(prod.production_time.split(":")[0]); %>
+              <td><%= hour < 12 ? "Morning" : hour < 16 ? "Afternoon" : "Evening" %></td>
+              <td><%= prod.quantity %> L</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

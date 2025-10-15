@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Animal Profiles Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  </head>
+  <body>
+    <%- include("_dashheader.ejs")%>
+    <main>
+      <%- include("_dashnav.ejs")%>
+      <section class="main-content">
+        <div class="section-header">
+          <h2>Per animal Production Chart</h2>
+          <button class="btn" id="addAnimal">Add New Animal</button>
+        </div>
+        <canvas id="myChart" style="width: 100%; max-width: 600px"></canvas>
+
+        <script>
+          const xValues = <%- JSON.stringify(animals[0]) %>
+          const yValues = <%= JSON.stringify(animals[1]) %>
+          const barColors = [
+            "#b91d47",
+            "#00aba9",
+            "#2b5797",
+
+          ];
+
+          new Chart("myChart", {
+            type: "pie",
+            data: {
+              labels: xValues,
+              datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+              }]
+            },
+            options: {
+              title: {
+                display: true,
+                text: "Per animal Production Chart"
+              }
+            }
+          });
+        </script>
+
+        <div class="all-animals-info">
+          <% allAnimalsForFarmer.forEach(animal=>{ %>
+
+          <div class="animal-card">
+            <h3><%= animal.name %> (<%= animal.animal_tag %>)</h3>
+            <p><strong>Breed:</strong> <%= animal.breed %></p>
+            <p>
+              <strong>Age:</strong> <%= new Date().getFullYear() - new
+              Date(animal.dob).getFullYear() %>
+            </p>
+          </div>
+
+          <% }) %>
+        </div>
+        <div class="form-container">
+          <div class="form-header">
+            <h2>Animal Registration Form</h2>
+            <button id="close">Close</button>
+          </div>
+          <form id="animalForm" action="/new-animal" method="POST">
+            <div class="form-group">
+              <label for="animal_tag"
+                >Animal Tag <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="animal_tag"
+                name="animal_tag"
+                maxlength="20"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="name"
+                >Animal Name <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="name"
+                name="name"
+                maxlength="100"
+                required
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="dob"
+                  >Date of Birth <span class="required">*</span></label
+                >
+                <input type="date" id="dob" name="dob" required />
+              </div>
+
+              <div class="form-group">
+                <label for="purchase_date">Purchase Date</label>
+                <input type="date" id="purchase_date" name="purchase_date" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="breed">Breed</label>
+              <input
+                type="text"
+                id="breed"
+                name="breed"
+                maxlength="100"
+                placeholder="e.g., Holstein, Angus, etc."
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="gender"
+                  >Gender <span class="required">*</span></label
+                >
+                <select id="gender" name="gender" required>
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="source"
+                  >Source <span class="required">*</span></label
+                >
+                <select id="source" name="source" required>
+                  <option value="">Select Source</option>
+                  <option value="Birth">Birth</option>
+                  <option value="Purchase">Purchase</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status <span class="required">*</span></label>
+              <select id="status" name="status" required>
+                <option value="Alive" selected>Alive</option>
+                <option value="Dead">Dead</option>
+                <option value="Sold">Sold</option>
+              </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Register Animal</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document
+        .getElementById("animalForm")
+        .addEventListener("submit", function (e) {
+          // Basic form validation
+          const animalTag = document.getElementById("animal_tag").value;
+          const name = document.getElementById("name").value;
+          const dob = document.getElementById("dob").value;
+          const gender = document.getElementById("gender").value;
+          const source = document.getElementById("source").value;
+
+          if (!animalTag || !name || !dob || !gender || !source) {
+            alert("Please fill in all required fields.");
+            e.preventDefault();
+            return;
+          }
+        });
+
+      // Show/hide purchase date based on source selection
+      document.getElementById("source").addEventListener("change", function () {
+        const purchaseDateGroup = document
+          .getElementById("purchase_date")
+          .closest(".form-group");
+        if (this.value === "Purchase") {
+          purchaseDateGroup.style.display = "block";
+          document.getElementById("purchase_date").required = true;
+        } else {
+          purchaseDateGroup.style.display = "block"; // Keep visible but not required
+          document.getElementById("purchase_date").required = false;
+        }
+      });
+
+      // show/hide form
+
+      document
+        .getElementById("addAnimal")
+        .addEventListener("click", function () {
+          document.querySelector(".form-container").style.display = "block";
+        });
+      document.getElementById("close").addEventListener("click", function () {
+        document.querySelector(".form-container").style.display = "none";
+      });
+    </script>
+  </body>
+</html>

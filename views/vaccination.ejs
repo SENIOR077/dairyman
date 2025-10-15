@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vaccination Management</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="mobile-nav.js"></script>
+  </head>
+  <body>
+    <%- include("_dashheader.ejs")%>
+    <main>
+      <%- include("_dashnav.ejs")%>
+      <section class="main-content">
+        <% if (locals.successMessage) { %>
+        <div class="success-message">
+          <p><%= locals.successMessage %></p>
+          <button class="close-success">×</button>
+        </div>
+        <% } %>
+
+        <div class="section-header">
+          <h2>💉 Vaccination Management</h2>
+          <button class="btn" id="addVaccinationBtn">
+            Record New Vaccination
+          </button>
+        </div>
+
+        <!-- Vaccination Summary Cards -->
+        <div class="stats-grid">
+          <div class="stat-card stat-primary">
+            <div class="stat-icon">💉</div>
+            <div class="stat-content">
+              <h3><%= totalVaccinations %></h3>
+              <p>Total Vaccinations</p>
+              <span class="stat-trend">All time</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-warning">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+              <h3><%= dueSoon %></h3>
+              <p>Due Soon (30 days)</p>
+              <span class="stat-trend">Need attention</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Vaccinations Table -->
+        <div class="table-section">
+          <h3>Recent Vaccinations</h3>
+          <div class="table-container">
+            <% if (recentVaccinations.length > 0) { %>
+            <table class="expenses-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Animal</th>
+                  <th>Vaccine</th>
+                  <th>Next Due</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentVaccinations.forEach(vaccination => { %>
+                <tr>
+                  <td>
+                    <%= new
+                    Date(vaccination.date_administered).toLocaleDateString() %>
+                  </td>
+                  <td>
+                    <span class="animal-badge">
+                      🐄 <%= vaccination.animal_name %> (<%=
+                      vaccination.animal_tag %>)
+                    </span>
+                  </td>
+                  <td>
+                    <span class="vaccine-badge">
+                      <%= vaccination.vaccine_name %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (vaccination.next_due_date) { %> <% const dueDate =
+                    new Date(vaccination.next_due_date); %> <% const today = new
+                    Date(); %> <% const daysUntilDue = Math.ceil((dueDate -
+                    today) / (1000 * 60 * 60 * 24)); %>
+                    <span
+                      class="due-date <%= daysUntilDue <= 30 ? 'due-soon' : daysUntilDue <= 0 ? 'overdue' : 'due-later' %>"
+                    >
+                      <%= dueDate.toLocaleDateString() %> <% if (daysUntilDue <=
+                      0) { %>
+                      <small>(Overdue)</small>
+                      <% } else if (daysUntilDue <= 30) { %>
+                      <small>(<%= daysUntilDue %> days)</small>
+                      <% } %>
+                    </span>
+                    <% } else { %>
+                    <span class="no-due-date">Not scheduled</span>
+                    <% } %>
+                  </td>
+                  <td><%= vaccination.notes || 'No notes' %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <div class="table-footer">
+              <a href="#" class="btn btn-secondary">View All Vaccinations</a>
+            </div>
+            <% } else { %>
+            <div class="empty-state">
+              <div class="empty-icon">💉</div>
+              <h3>No Vaccination Records</h3>
+              <p>Start recording vaccinations to track your animals' health</p>
+              <button class="btn" id="addFirstVaccinationBtn">
+                Record First Vaccination
+              </button>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Add Vaccination Modal -->
+    <div class="modal-overlay" id="vaccinationModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Record New Vaccination</h3>
+          <button class="modal-close" id="closeVaccinationModal">×</button>
+        </div>
+        <form id="vaccinationForm" action="/add-vaccination" method="POST">
+          <div class="form-group">
+            <label for="animal_id">Animal *</label>
+            <select id="animal_id" name="animal_id" required>
+              <option value="">Select animal</option>
+              <% animals.forEach(animal => { %>
+              <option value="<%= animal.animal_tag %>">
+                <%= animal.name %> (<%= animal.animal_tag %>)
+              </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="vaccine_name">Vaccine Name *</label>
+            <select id="vaccine_name" name="vaccine_name" required>
+              <option value="">Select vaccine</option>
+              <option value="FMD">FMD (Foot and Mouth Disease)</option>
+              <option value="Lumpy Skin">Lumpy Skin Disease</option>
+              <option value="CBPP">
+                CBPP (Contagious Bovine Pleuropneumonia)
+              </option>
+              <option value="Anthrax">Anthrax</option>
+              <option value="Black Quarter">Black Quarter</option>
+              <option value="Brucellosis">Brucellosis</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="date_administered">Date Administered *</label>
+            <input
+              type="date"
+              id="date_administered"
+              name="date_administered"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="next_due_date">Next Due Date</label>
+            <input type="date" id="next_due_date" name="next_due_date" />
+            <small>Leave empty if not applicable</small>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="3"
+              placeholder="Additional notes about the vaccination"
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelVaccination"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn">Record Vaccination</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Modal functionality
+      const addVaccinationBtn = document.getElementById("addVaccinationBtn");
+      const addFirstVaccinationBtn = document.getElementById(
+        "addFirstVaccinationBtn"
+      );
+      const vaccinationModal = document.getElementById("vaccinationModal");
+      const closeVaccinationModal = document.getElementById(
+        "closeVaccinationModal"
+      );
+      const cancelVaccination = document.getElementById("cancelVaccination");
+      const vaccinationForm = document.getElementById("vaccinationForm");
+
+      // Open modal functions
+      function openVaccinationModal() {
+        vaccinationModal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        // Set today's date as default
+        document.getElementById("date_administered").value = new Date()
+          .toISOString()
+          .split("T")[0];
+      }
+
+      if (addVaccinationBtn) {
+        addVaccinationBtn.addEventListener("click", openVaccinationModal);
+      }
+
+      if (addFirstVaccinationBtn) {
+        addFirstVaccinationBtn.addEventListener("click", openVaccinationModal);
+      }
+
+      // Close modal functions
+      function closeVaccinationModalFunc() {
+        vaccinationModal.style.display = "none";
+        document.body.style.overflow = "";
+        vaccinationForm.reset();
+      }
+
+      if (closeVaccinationModal) {
+        closeVaccinationModal.addEventListener(
+          "click",
+          closeVaccinationModalFunc
+        );
+      }
+
+      if (cancelVaccination) {
+        cancelVaccination.addEventListener("click", closeVaccinationModalFunc);
+      }
+
+      // Close modal when clicking overlay
+      if (vaccinationModal) {
+        vaccinationModal.addEventListener("click", function (e) {
+          if (e.target === vaccinationModal) {
+            closeVaccinationModalFunc();
+          }
+        });
+      }
+
+      // Close modal on escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && vaccinationModal.style.display === "flex") {
+          closeVaccinationModalFunc();
+        }
+      });
+
+      // Auto-calculate next due date based on vaccine type
+      const vaccineSelect = document.getElementById("vaccine_name");
+      const nextDueInput = document.getElementById("next_due_date");
+
+      if (vaccineSelect && nextDueInput) {
+        vaccineSelect.addEventListener("change", function () {
+          const vaccine = this.value;
+          const today = new Date();
+          let nextDue = new Date(today);
+
+          // Set default intervals based on vaccine type
+          switch (vaccine) {
+            case "FMD":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            case "Lumpy Skin":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            case "CBPP":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            case "Anthrax":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            case "Black Quarter":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            case "Brucellosis":
+              nextDue.setFullYear(today.getFullYear() + 1); // Annual
+              break;
+            default:
+              return; // Don't auto-set for "Other"
+          }
+
+          nextDueInput.value = nextDue.toISOString().split("T")[0];
+        });
+      }
+
+      // Close success message
+      const closeSuccessBtn = document.querySelector(".close-success");
+      if (closeSuccessBtn) {
+        closeSuccessBtn.addEventListener("click", function () {
+          this.parentElement.style.display = "none";
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farmer Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  </head>
+  <body>
+    <%- include("_dashheader.ejs") %>
+
+    <main>
+      <%- include("_dashnav.ejs") %>
+
+      <section class="main-content">
+        <h2>Dashboard</h2>
+        <p>
+          This is the farmer dashboard where you can manage your farm activities
+          and see summaries.
+        </p>
+
+        <% for (const animal in groupedData){ %>
+
+        <h2><%- groupedData[animal].animal_name%></h2>
+        <canvas id="<%=animal%>" style="width: 100%; max-width: 600px"></canvas>
+
+        <script>
+           const xValues_<%= animal %> = <%- JSON.stringify(groupedData[animal].production_dates.reverse()) %>;
+          const yValues_<%= animal %> = <%- JSON.stringify(groupedData[animal].total_daily_productions.reverse()) %>;
+
+                new Chart("<%=animal%>", {
+                  type: "line",
+                  data: {
+                    labels: xValues_<%= animal %>,
+                    datasets: [
+                      {
+                        fill: false,
+                        lineTension: 0,
+                        backgroundColor: "rgba(0,0,255,1.0)",
+                        borderColor: "rgba(0,0,255,0.1)",
+                        data: yValues_<%= animal %>,
+                      },
+                    ],
+                  },
+                  options: {
+                    legend: { display: false },
+                    scales: {
+                      yAxes: [{ ticks: { min: 5, max: 140 } }],
+                    },
+                  },
+                });
+        </script>
+
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>

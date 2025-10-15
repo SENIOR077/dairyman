@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farmer Registration</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="register.css" />
+  </head>
+  <body>
+    <%- include("_header.ejs") %>
+    <div class="form-container">
+      <h2>Farmer Registration</h2>
+      <form action="/register" method="POST">
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <input
+            type="text"
+            id="fullname"
+            name="fullname"
+            required
+            maxlength="100"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            maxlength="100"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="8"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="county">County</label>
+          <input type="text" id="county" name="county" maxlength="100" />
+        </div>
+
+        <div class="form-group">
+          <label for="farm_location">Farm Location</label>
+          <input
+            type="text"
+            id="farm_location"
+            name="farm_location"
+            maxlength="255"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="farm_name">Farm Name</label>
+          <input type="text" id="farm_name" name="farm_name" maxlength="100" />
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+    </div>
+    <%- include("_footer.ejs") %>
+  </body>
+</html>

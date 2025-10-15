@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milk Production Records</title>
+    <link rel="stylesheet" href="dashboard.css">
+    
+</head>
+<body>
+    <%- include("_dashheader.ejs" )%>
+
+    <main>
+        <%- include("_dashnav.ejs")%>
+
+        <!--  
+        
+          animal_id         VARCHAR(20) NOT NULL,
+    production_date   DATE NOT NULL,
+    production_time   TIME NOT NULL,
+    quantity          DECIMAL(8,2) NOT NULL,
+    quality           VARCHAR(50) NULL,
+    unit              VARCHAR(20) DEFAULT 'Liters',
+        
+        -->
+
+
+
+
+        <section class="main-content">
+            <div class="section-header">
+                <h1>Add Milk Production</h1>
+                <a href="/milk-production" class="btn btn-primary">Back to Records</a>
+            </div>
+            <form action="/add-milk-production" method="POST" class="form">
+                <div class="form-group">
+                    <label for="animal_tag">Select Animal</label>
+                        <select name="animal_id" id="animal_tag" required>
+                            <% animals.forEach(animal => { %>
+                                <option value="<%= animal.animal_tag %>"><%= animal.animal_tag %> - <%= animal.name %></option>
+                            <% }) %>
+                        </select>
+                </div>
+                <div class="form-group">
+                    <label for="production_date">Date</label>
+                    <input type="date" id="production_date" name="production_date" required>
+                </div>
+                <div class="form-group
+">
+                    <label for="production_time">Time</label>
+                    <!-- defualt current time -->
+                    <input type="time" id="production_time" name="production_time" value="<%= new Date().toISOString().slice(11,16) %>" required>
+                </div>
+                <div class="form-group
+">
+                    <label for="quantity">Quantity (Liters)</label>
+                    <input type="number" step="0.01" id="quantity" name="quantity" required>
+                </div>
+                <div class="form-group">
+                    <label for="quality">Quality (Optional)</label>
+                    <input type="text" id="quality" name="quality">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Record</button>
+                
+                
+        </section>
+    </main>
+</body>
+</html>
